@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class DriverVehicle(AssociativeBase):
     __tablename__ = "driver_vehicle"
 
-    __table_args__ = (UniqueConstraint("driver_id", "vehicle_id"),)
+    __table_args__ = (UniqueConstraint("driver_id", "vehicle_id", name="uq_driver_vehicle"),)
 
     is_active: Mapped[bool] = mapped_column(default=False)
 

@@ -7,6 +7,7 @@ from models.base import ModelBase as Base
 if TYPE_CHECKING:
     from models.driver import Driver
     from models.vehicle import Vehicle
+    from models.manager_enterprise import ManagerEnterprise
 
 
 class Enterprise(Base):
@@ -17,6 +18,7 @@ class Enterprise(Base):
 
     drivers: Mapped[list["Driver"]] = relationship(back_populates="enterprise")
     vehicles: Mapped[list["Vehicle"]] = relationship(back_populates="enterprise")
+    managers: Mapped[list["ManagerEnterprise"]] = relationship(back_populates="enterprises")
 
     def __str__(self):
         return f"{self.name} ({self.city})"

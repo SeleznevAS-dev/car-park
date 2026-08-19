@@ -18,7 +18,7 @@ class Enterprise(Base):
 
     drivers: Mapped[list["Driver"]] = relationship(back_populates="enterprise")
     vehicles: Mapped[list["Vehicle"]] = relationship(back_populates="enterprise")
-    managers: Mapped[list["ManagerEnterprise"]] = relationship(back_populates="enterprises")
+    managers: Mapped[list["ManagerEnterprise"]] = relationship(back_populates="enterprise")
 
     def __str__(self):
         return f"{self.name} ({self.city})"

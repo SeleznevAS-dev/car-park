@@ -1,0 +1,31 @@
+[project]
+name = "car-park"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "alembic>=1.18.5",
+    "asyncpg>=0.31.0",
+    "bandit>=1.9.4",
+    "cryptography>=50.0.0",
+    "fastapi>=0.140.7",
+    "fastapi-users[sqlalchemy]>=15.0.5",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.2",
+    "pyopenssl>=26.4.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "radon>=6.0.1",
+    "ruff>=0.16.0",
+    "sqladmin[full]>=0.30.0",
+    "sqlalchemy>=2.0.51",
+    "ty>=0.0.64",
+    "uvicorn>=0.51.0",
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]

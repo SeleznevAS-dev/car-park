@@ -17,6 +17,9 @@ class BaseService(Generic[BaseRepoType], ABC):
     async def get_by_id(self, id: int):
         return await self.repo.get_by_id(id)
 
+    async def create(self, **kwargs):
+        return await self.repo.create(**kwargs)
+
 
 class AssociativeService(Generic[AssociativeRepoType], ABC):
     def __init__(self, repo: AssociativeRepoType):

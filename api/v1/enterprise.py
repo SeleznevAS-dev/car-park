@@ -1,3 +1,5 @@
+from models import User
+from core.auth import fastapi_users
 from fastapi import APIRouter, Depends
 
 from services.enterprise import EnterpriseService, get_enterprise_service
@@ -8,9 +10,21 @@ router = APIRouter()
 
 @router.get("/")
 async def get_enterprises(
-    limit: int = 20, offset: int = 0, enterprise_service: EnterpriseService = Depends(get_enterprise_service)
+    limit: int = 20,
+    offset: int = 0,
+    current_user: User = Depends(fastapi_users.current_user()),
+    enterprise_service: EnterpriseService = Depends(get_enterprise_service),
+    manager_enterprise_service: ManagerEnterpriseService = Depends(get_manager_enterprise_service),
 ):
-    return await enterprise_service.get_many(limit=limit, offset=offset)
+    if current_user.is_superuser:
+        return await enterprise_service.get_many(limit=limit, offset=offset)
+
+    manager_enterprises = await manager_enterprise_service.get_manager_enterprises(
+        manager_id=current_user.id, limit=limit, offset=offset
+    )
+    if not manager_enterprises:
+        return {"error": "No enterprises found for the current manager."}
+    return await enterprise_service.get_by_ids([me.enterprise_id for me in manager_enterprises])
 
 
 @router.get("/{id}")

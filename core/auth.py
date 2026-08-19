@@ -5,7 +5,7 @@ from fastapi_users import FastAPIUsers
 from services.access_token import get_access_token_service
 from fastapi_users.authentication import BearerTransport, AuthenticationBackend
 
-bearer_transport = BearerTransport(tokenUrl="api/auth/v1/login")
+bearer_transport = BearerTransport(tokenUrl="/api/v1/auth/login")
 
 auth_backend = AuthenticationBackend(
     name="access_tokens",

@@ -14,8 +14,7 @@ class ManagerEnterpriseRepository(AssociativeRepository[ManagerEnterprise]):
         super().__init__(session, ManagerEnterprise)
 
     async def add_manager_to_enterprise(self, manager_id: int, enterprise_id: int) -> ManagerEnterprise:
-        manager_enterprise = ManagerEnterprise(manager_id=manager_id, enterprise_id=enterprise_id)
-        return await self.create(manager_enterprise)
+        return await self.create(manager_id, enterprise_id)
 
     async def remove_manager_from_enterprise(self, manager_id: int, enterprise_id: int) -> None:
         manager_enterprise = await self.session.execute(
@@ -25,8 +24,8 @@ class ManagerEnterpriseRepository(AssociativeRepository[ManagerEnterprise]):
         if manager_enterprise_instance:
             await self.delete(manager_enterprise_instance)
 
-    async def get_manager_enterprises(self, manager_id: int, limit: int = 20, offset: int = 0):
-        query = select(self.model).where(self.model.manager_id == manager_id).offset(offset).limit(limit)
+    async def get_manager_enterprises(self, manager_id: int):
+        query = select(self.model).where(self.model.manager_id == manager_id)
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
@@ -51,6 +50,11 @@ class ManagerEnterpriseRepository(AssociativeRepository[ManagerEnterprise]):
             .offset(offset)
             .limit(limit)
         )
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
+
+    async def get_enterprise_managers(self, enterprise_id: int, limit: int = 20, offset: int = 0):
+        query = select(self.model).where(self.model.enterprise_id == enterprise_id).offset(offset).limit(limit)
         result = await self.session.execute(query)
         return list(result.scalars().all())
 

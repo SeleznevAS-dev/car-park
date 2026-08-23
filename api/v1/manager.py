@@ -12,17 +12,47 @@ router = APIRouter()
 
 @router.get("/")
 async def get_managers(
-    limit: int = 20, offset: int = 0, manager_service: ManagerService = Depends(get_manager_service)
+    limit: int = 20,
+    offset: int = 0,
+    manager_service: ManagerService = Depends(get_manager_service),
+    manager_enterprise_service: ManagerEnterpriseService = Depends(get_manager_enterprise_service),
 ):
-    return await manager_service.get_many(limit=limit, offset=offset)
+    managers = await manager_service.get_many(limit=limit, offset=offset)
+
+    result = [
+        {
+            "id": manager.id,
+            "created_at": manager.created_at,
+            "updated_at": manager.updated_at,
+            "enterprise_ids": [
+                enterprise.enterprise_id
+                for enterprise in await manager_enterprise_service.get_manager_enterprises(manager_id=manager.id)
+            ],
+        }
+        for manager in managers
+    ]
+    return result
 
 
 @router.get("/{id}")
-async def get_manager(id: int, manager_service: ManagerService = Depends(get_manager_service)):
+async def get_manager(
+    id: int,
+    manager_service: ManagerService = Depends(get_manager_service),
+    manager_enterprise_service: ManagerEnterpriseService = Depends(get_manager_enterprise_service),
+):
     manager = await manager_service.get_by_id(id)
+    manager_enterprises = await manager_enterprise_service.get_manager_enterprises(manager_id=manager.id)
+
     if not manager:
         return {"error": "Manager not found"}
-    return manager
+
+    result = {
+        "id": manager.id,
+        "created_at": manager.created_at,
+        "updated_at": manager.updated_at,
+        "enterprise_ids": [enterprise.enterprise_id for enterprise in manager_enterprises],
+    }
+    return result
 
 
 @router.post("/")

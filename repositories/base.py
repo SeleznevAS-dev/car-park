@@ -31,26 +31,27 @@ class BaseRepository(ABC, Generic[BaseModelType]):
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
-    async def create(self, instance: BaseModelType) -> BaseModelType:
-        self.session.add(instance)
+    async def create(self, **kwargs) -> BaseModelType:
+        model_instance = self.model(**kwargs)
+        self.session.add(model_instance)
         await self.session.commit()
-        await self.session.refresh(instance)
-        return instance
+        await self.session.refresh(model_instance)
+        return model_instance
 
-    async def update(self, instance: BaseModelType) -> BaseModelType:
-        await self.session.merge(instance)
+    async def update(self, model_instance: BaseModelType) -> BaseModelType:
+        await self.session.merge(model_instance)
         await self.session.commit()
-        await self.session.refresh(instance)
-        return instance
+        await self.session.refresh(model_instance)
+        return model_instance
 
-    async def delete(self, instance: BaseModelType) -> None:
-        await self.session.delete(instance)
+    async def delete(self, model_instance: BaseModelType) -> None:
+        await self.session.delete(model_instance)
         await self.session.commit()
 
     async def delete_by_id(self, id: int) -> bool:
-        instance = await self.get_by_id(id)
-        if instance:
-            await self.delete(instance)
+        model_instance = await self.get_by_id(id)
+        if model_instance:
+            await self.delete(model_instance)
             return True
         return False
 
@@ -70,12 +71,13 @@ class AssociativeRepository(ABC, Generic[AssociativeModelType]):
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
-    async def create(self, instance: AssociativeModelType) -> AssociativeModelType:
-        self.session.add(instance)
+    async def create(self, **kwargs) -> AssociativeModelType:
+        model_instance = self.model(**kwargs)
+        self.session.add(model_instance)
         await self.session.commit()
-        await self.session.refresh(instance)
-        return instance
+        await self.session.refresh(model_instance)
+        return model_instance
 
-    async def delete(self, instance: AssociativeModelType) -> None:
-        await self.session.delete(instance)
+    async def delete(self, model_instance: AssociativeModelType) -> None:
+        await self.session.delete(model_instance)
         await self.session.commit()

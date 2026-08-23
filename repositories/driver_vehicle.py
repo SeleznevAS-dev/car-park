@@ -14,8 +14,7 @@ class DriverVehicleRepository(AssociativeRepository[DriverVehicle]):
         super().__init__(session, DriverVehicle)
 
     async def add_driver_to_vehicle(self, driver_id: int, vehicle_id: int) -> DriverVehicle:
-        driver_vehicle = DriverVehicle(driver_id=driver_id, vehicle_id=vehicle_id)
-        return await self.create(driver_vehicle)
+        return await self.create(driver_id, vehicle_id)
 
     async def remove_driver_from_vehicle(self, driver_id: int, vehicle_id: int) -> None:
         driver_vehicle = await self.session.execute(

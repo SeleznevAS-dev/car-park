@@ -13,8 +13,8 @@ class ManagerEnterpriseService(AssociativeService[ManagerEnterpriseRepository]):
     async def get_enterprise_managers(self, enterprise_id: int, limit: int = 20, offset: int = 0):
         return await self.repo.get_enterprise_managers(enterprise_id=enterprise_id, limit=limit, offset=offset)
 
-    async def get_manager_enterprises(self, manager_id: int, limit: int = 20, offset: int = 0):
-        return await self.repo.get_manager_enterprises(manager_id=manager_id, limit=limit, offset=offset)
+    async def get_manager_enterprises(self, manager_id: int):
+        return await self.repo.get_manager_enterprises(manager_id=manager_id)
 
     async def add_manager_to_enterprise(self, manager_id: int, enterprise_id: int):
         return await self.repo.add_manager_to_enterprise(manager_id=manager_id, enterprise_id=enterprise_id)

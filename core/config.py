@@ -1,8 +1,19 @@
 from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from fastapi_csrf_protect import CsrfProtect
 
 load_dotenv(override=True)
+
+
+class CSRFSettings(BaseSettings):
+    secret_key: str = Field(..., alias="CSRF_SECRET_KEY")
+    cookie_samesite: str = Field(..., alias="CSRF_COOKIE_SAMESITE")
+
+
+@CsrfProtect.load_config
+def get_csrf_config():
+    return CSRFSettings()
 
 
 class AccessTokenSettings(BaseSettings):

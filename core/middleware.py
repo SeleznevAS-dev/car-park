@@ -1,5 +1,5 @@
-from fastapi import Request
 from fastapi.responses import JSONResponse
+from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 from fastapi_csrf_protect import CsrfProtect
@@ -14,11 +14,12 @@ class CsrfMiddleware(BaseHTTPMiddleware):
 
         try:
             await csrf_protect.validate_csrf(request)
-        except CsrfProtectError as e:
-            return JSONResponse(status_code=e.status_code, content={"detail": e.message})
+        except CsrfProtectError:
+            return JSONResponse(status_code=403, content={"detail": "Forbidden"})
 
         return await call_next(request)
 
 
 def add_middlewares(app):
-    app.add_middleware(CsrfMiddleware)
+    pass
+    #app.add_middleware(CsrfMiddleware)

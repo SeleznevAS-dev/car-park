@@ -1,6 +1,3 @@
-import asyncio
-from services.vehicle import VehicleService, get_vehicle_service
-from services.driver import get_driver_service, DriverService
 from services.enterprise import EnterpriseService, get_enterprise_service
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -19,19 +16,7 @@ async def get_managers(
 ):
     managers = await manager_service.get_many(limit=limit, offset=offset)
 
-    result = [
-        {
-            "id": manager.id,
-            "created_at": manager.created_at,
-            "updated_at": manager.updated_at,
-            "enterprise_ids": [
-                enterprise.enterprise_id
-                for enterprise in await manager_enterprise_service.get_manager_enterprises(manager_id=manager.id)
-            ],
-        }
-        for manager in managers
-    ]
-    return result
+    return managers
 
 
 @router.get("/{id}")
@@ -63,16 +48,12 @@ async def create_manager(user_id: int, manager_service: ManagerService = Depends
 @router.get("/{manager_id}/enterprises")
 async def get_manager_enterprises(
     manager_id: int,
-    limit: int = 20,
-    offset: int = 0,
     manager_enterprise_service: ManagerEnterpriseService = Depends(get_manager_enterprise_service),
     enterprise_service: EnterpriseService = Depends(get_enterprise_service),
 ):
-    manager_enterprises = await manager_enterprise_service.get_manager_enterprises(
-        manager_id=manager_id, limit=limit, offset=offset
-    )
+    manager_enterprises = await manager_enterprise_service.get_manager_enterprises(manager_id=manager_id)
     if not manager_enterprises:
         raise HTTPException(status_code=404, detail="Manager not found or has no enterprises")
 
-    result = enterprise_service.get_by_ids([me.enterprise_id for me in manager_enterprises])
-    return await result
+    result = await enterprise_service.get_by_ids([me.enterprise_id for me in manager_enterprises])
+    return result

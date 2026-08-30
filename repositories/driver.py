@@ -1,3 +1,4 @@
+from core.utils import to_dict_with_relation_ids
 from typing import Annotated
 
 from fastapi import Depends
@@ -17,16 +18,14 @@ class DriverRepository(BaseRepository[Driver]):
         super().__init__(session, Driver)
 
     async def get_many(self, limit: int = 20, offset: int = 0) -> list[Driver]:
-        query = (
-            select(self.model)
-            .options(selectinload(Driver.vehicles).load_only(DriverVehicle.vehicle_id))
-            .limit(limit)
-            .offset(offset)
-        )
+        query = select(self.model).options(selectinload(Driver.vehicles)).limit(limit).offset(offset)
         result = await self.session.execute(query)
-        drivers = list(result.scalars().all())
+        drivers = result.scalars().all()
 
-        return drivers
+        result = [to_dict_with_relation_ids(driver, "vehicles") for driver in drivers]
+        for driver in result:
+            driver["active_vehicle_id"] = await self.get_active_vehicle_id(driver["id"])
+        return result
 
     async def get_active_vehicle_id(self, driver_id: int) -> int:
         query = (
@@ -37,6 +36,20 @@ class DriverRepository(BaseRepository[Driver]):
         result = await self.session.execute(query)
         vehicle = result.scalar_one_or_none()
         return vehicle.id if vehicle else -1
+
+    async def get_drivers_by_enterprise_ids(self, enterprise_ids: list[int]) -> list[Driver]:
+        query = (
+            select(self.model)
+            .where(self.model.enterprise_id.in_(enterprise_ids))
+            .options(selectinload(Driver.vehicles))
+        )
+        result = await self.session.execute(query)
+        drivers = result.scalars().all()
+
+        result = [to_dict_with_relation_ids(driver, "vehicles") for driver in drivers]
+        for driver in result:
+            driver["active_vehicle_id"] = await self.get_active_vehicle_id(driver["id"])
+        return result
 
 
 async def get_driver_repository(session: Annotated[AsyncSession, Depends(get_session)]):

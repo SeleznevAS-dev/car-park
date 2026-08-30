@@ -12,17 +12,6 @@ class EnterpriseService(BaseService[EnterpriseRepository]):
 
     async def get_many(self, limit: int = 20, offset: int = 0) -> list:
         result = await self.repo.get_many(limit=limit, offset=offset)
-        result = [
-            {
-                "id": enterprise.id,
-                "name": enterprise.name,
-                "created_at": enterprise.created_at,
-                "updated_at": enterprise.updated_at,
-                "driver_ids": [driver.id for driver in enterprise.drivers],
-                "vehicle_ids": [vehicle.id for vehicle in enterprise.vehicles],
-            }
-            for enterprise in result
-        ]
         return result
 
     async def get_by_ids(self, enterprise_ids: list[int]) -> list[dict]:

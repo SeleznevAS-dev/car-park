@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from services.brand import BrandService, get_brand_service
 
@@ -14,5 +14,5 @@ async def get_brands(limit: int = 20, offset: int = 0, brand_service: BrandServi
 async def get_brand(id: int, brand_service: BrandService = Depends(get_brand_service)):
     brand = await brand_service.get_by_id(id)
     if not brand:
-        return {"error": "Brand not found"}
+        return HTTPException(status_code=404, detail="Brand not found")
     return brand

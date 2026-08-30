@@ -1,3 +1,4 @@
+from core.utils import to_dict_with_relation_ids
 from typing import Annotated
 
 from fastapi import Depends
@@ -27,7 +28,8 @@ class EnterpriseRepository(BaseRepository[Enterprise]):
             .offset(offset)
         )
         result = await self.session.execute(query)
-        return list(result.scalars().all())
+        result = result.scalars().all()
+        return [to_dict_with_relation_ids(enterprise, "drivers") for enterprise in result]
 
     async def get_by_ids(self, ids: list[int]) -> list[Enterprise]:
         query = (

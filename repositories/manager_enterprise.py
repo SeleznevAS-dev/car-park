@@ -58,6 +58,11 @@ class ManagerEnterpriseRepository(AssociativeRepository[ManagerEnterprise]):
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
+    async def get_by_ids(self, manager_id: int, enterprise_id: int):
+        query = select(self.model).where(self.model.manager_id == manager_id, self.model.enterprise_id == enterprise_id)
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
+
 
 async def get_manager_enterprise_repository(session: Annotated[AsyncSession, Depends(get_session)]):
     return ManagerEnterpriseRepository(session)

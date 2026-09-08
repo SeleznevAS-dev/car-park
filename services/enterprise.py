@@ -28,6 +28,9 @@ class EnterpriseService(BaseService[EnterpriseRepository]):
             for enterprise in enterprises
         ]
 
+    async def add_vehicle_to_enterprise(self, vehicle_id: int, enterprise_id: int):
+        return await self.repo.add_vehicle_to_enterprise(vehicle_id=vehicle_id, enterprise_id=enterprise_id)
+
 
 async def get_enterprise_service(repo: Annotated[EnterpriseRepository, Depends(get_enterprise_repository)]):
     return EnterpriseService(repo)

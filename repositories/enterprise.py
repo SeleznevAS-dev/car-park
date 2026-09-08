@@ -43,6 +43,19 @@ class EnterpriseRepository(BaseRepository[Enterprise]):
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
+    async def add_vehicle_to_enterprise(self, vehicle_id: int, enterprise_id: int):
+        enterprise = await self.get_by_id(enterprise_id)
+        if not enterprise:
+            raise ValueError(f"Enterprise with id {enterprise_id} not found")
+
+        vehicle = await self.session.get(Vehicle, vehicle_id)
+        if not vehicle:
+            raise ValueError(f"Vehicle with id {vehicle_id} not found")
+
+        enterprise.vehicles.append(vehicle)
+        await self.session.commit()
+        return vehicle
+
 
 async def get_enterprise_repository(session: Annotated[AsyncSession, Depends(get_session)]):
     return EnterpriseRepository(session)

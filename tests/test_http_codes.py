@@ -64,7 +64,7 @@ def test_unauthenticated_requests_return_401(client):
         ("post", "/api/v1/enterprises/"),
         ("delete", "/api/v1/enterprises/1"),
     ):
-        request = {"name": "Park", "city": "Moscow"}
+        request = {"name": "Парк", "city": "Москва"}
         response = client.request(method.upper(), url, json=request)
         assert response.status_code == 401
 
@@ -126,7 +126,7 @@ def test_manager_without_enterprise_permissions_returns_403(client):
     app.dependency_overrides[get_enterprise_service] = lambda: FakeEnterpriseService(SimpleNamespace(id=1))
     app.dependency_overrides[get_manager_enterprise_service] = lambda: FakeManagerEnterpriseService()
 
-    response = client.put("/api/v1/enterprises/1", json={"name": "Park", "city": "Moscow"})
+    response = client.put("/api/v1/enterprises/1", json={"name": "Парк", "city": "Москва"})
 
     assert response.status_code == 403
 
@@ -136,7 +136,7 @@ def test_put_returns_200(client):
     app.dependency_overrides[get_enterprise_service] = lambda: FakeEnterpriseService(SimpleNamespace(id=1))
     app.dependency_overrides[get_manager_enterprise_service] = lambda: FakeManagerEnterpriseService({1})
 
-    response = client.put("/api/v1/enterprises/1", json={"name": "Park", "city": "Moscow"})
+    response = client.put("/api/v1/enterprises/1", json={"name": "Парк", "city": "Москва"})
 
     assert response.status_code == 200
 
@@ -145,7 +145,7 @@ def test_post_returns_201(client):
     app.dependency_overrides[get_current_user] = override_current_user
     app.dependency_overrides[get_enterprise_service] = lambda: FakeEnterpriseService()
 
-    response = client.post("/api/v1/enterprises/", params={"name": "Park", "city": "Moscow"})
+    response = client.post("/api/v1/enterprises/", params={"name": "Парк", "city": "Москва"})
 
     assert response.status_code == 201
 

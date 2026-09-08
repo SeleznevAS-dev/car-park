@@ -17,3 +17,5 @@ fastapi_users = FastAPIUsers[User, UserIdType](
     get_user_manager=get_user_manager,
     auth_backends=[auth_backend],
 )
+
+get_current_user = fastapi_users.current_user()

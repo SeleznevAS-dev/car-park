@@ -1,5 +1,5 @@
 from models import User
-from core.auth import fastapi_users
+from core.auth import get_current_user
 from services.manager_enterprise import ManagerEnterpriseService, get_manager_enterprise_service
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -13,7 +13,7 @@ router = APIRouter()
 async def get_drivers(
     driver_service: DriverService = Depends(get_driver_service),
     manager_enterprise_service: ManagerEnterpriseService = Depends(get_manager_enterprise_service),
-    current_user: User = Depends(fastapi_users.current_user()),
+    current_user: User = Depends(get_current_user),
 ):
     manager_enterprises = await manager_enterprise_service.get_manager_enterprises(manager_id=current_user.id)
     if not manager_enterprises:

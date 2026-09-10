@@ -10,8 +10,11 @@ from main import app
 
 
 class FakeEnterpriseService:
-    def __init__(self, enterprise=None):
+    def __init__(self, enterprise=None, vehicles=(), drivers=()):
         self.enterprise = enterprise
+        if self.enterprise is not None:
+            self.enterprise.vehicles = list(vehicles)
+            self.enterprise.drivers = list(drivers)
 
     async def get_by_id(self, enterprise_id):
         return self.enterprise
@@ -35,11 +38,15 @@ class FakeVehicleService:
 
 
 class FakeManagerEnterpriseService:
-    def __init__(self, enterprise_ids=()):
+    def __init__(self, enterprise_ids=(), enterprise_manager_ids=()):
         self.enterprise_ids = set(enterprise_ids)
+        self.enterprise_manager_ids = set(enterprise_manager_ids)
 
     async def get_manager_enterprises(self, manager_id):
         return [SimpleNamespace(enterprise_id=enterprise_id) for enterprise_id in self.enterprise_ids]
+
+    async def get_enterprise_managers(self, enterprise_id):
+        return [SimpleNamespace(manager_id=manager_id) for manager_id in self.enterprise_manager_ids]
 
 
 @pytest.fixture
@@ -158,3 +165,25 @@ def test_delete_returns_204(client):
     response = client.delete("/api/v1/enterprises/1")
 
     assert response.status_code == 204
+
+
+def test_delete_enterprise_with_vehicles_returns_409(client):
+    app.dependency_overrides[get_current_user] = override_current_user
+    app.dependency_overrides[get_enterprise_service] = lambda: FakeEnterpriseService(
+        SimpleNamespace(id=1), vehicles=[SimpleNamespace(id=10)]
+    )
+    app.dependency_overrides[get_manager_enterprise_service] = lambda: FakeManagerEnterpriseService({1}, {1})
+
+    response = client.delete("/api/v1/enterprises/1")
+
+    assert response.status_code == 409
+
+
+def test_delete_enterprise_visible_to_other_manager_returns_409(client):
+    app.dependency_overrides[get_current_user] = override_current_user
+    app.dependency_overrides[get_enterprise_service] = lambda: FakeEnterpriseService(SimpleNamespace(id=1))
+    app.dependency_overrides[get_manager_enterprise_service] = lambda: FakeManagerEnterpriseService({1}, {1, 2})
+
+    response = client.delete("/api/v1/enterprises/1")
+
+    assert response.status_code == 409

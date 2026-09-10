@@ -78,6 +78,13 @@ async def delete_enterprise(
     if not any(me.enterprise_id == id for me in manager_enterprises):
         raise HTTPException(status_code=403, detail="You do not have permission to delete this enterprise")
 
+    if enterprise.vehicles:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Enterprise has vehicles")
+
+    enterprise_managers = await manager_enterprise_service.get_enterprise_managers(enterprise_id=id)
+    if len(enterprise_managers) > 1:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Enterprise has other managers")
+
     await enterprise_service.delete_by_id(id=id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
